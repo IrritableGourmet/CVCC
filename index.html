@@ -1,0 +1,88 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <title>CVCC Notes</title>
+  <meta name="description" content="Utility page for CVCC Agents">
+  <meta name="author" content="NMS">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="styles/bootstrap.css"/>
+</head>
+
+<body>
+	<nav class="navbar navbar-dark bg-dark">
+		<div class="container-fluid">
+			<a class="navbar-brand" href="#">CVCC</a>
+		</div>
+	</nav>
+
+	<div class="container-fluid mt-3 vh-100" id="main-container">
+		
+		<div class="row gy-3 gx-2">
+			<div class="col-lg-12">
+				<div class="border bg-light h-100">		
+					<div class="p-3 widget" id="tb_caller">
+						<h4>Opening</h4>
+						<div class="input-group mb-3">
+							<input type="text" id="caller_fname" class="form-control" placeholder="Caller First Name" aria-label="Caller First Name">
+							<input type="text" id="caller_lname" class="form-control" placeholder="Last Name" aria-label="Last Name">
+						</div>
+						<div class="input-group mb-3">
+							<span class="input-group-text">calling for</span>
+							<input type="text" id="client_fname" class="form-control" placeholder="Client First Name" aria-label="Client First Name">
+							<input type="text" id="client_lname" class="form-control" placeholder="Last Name" aria-label="Last Name">
+						</div>
+						<div class="input-group mb-3">
+							<span class="input-group-text">Reason</span>
+							<select class="form-select" id="call_reason">
+								<option value="report a change">RMC</option>
+								<option value="check the status of an application">Application Status</option>
+								<option value="check their coverage status">Coverage Status</option>
+								<option value="resolve a billing/claim issue">Billing/Claim Issue</option>
+								<option value="change their MCO">MCO Change</option>
+								<option value="remove a TPL">TPL Removal</option>
+								<option value="deem a newborn">Newborn Deeming</option>
+								<option value="">Other</option>
+							</select>
+						</div>
+						<div class="input-group mb-3">
+							<input type="text" id="call_reason_other" class="form-control" placeholder="Other Reason">
+						</div>
+						<div class="input-group mb-3">
+							<span class="input-group-text">SSN</span>
+							<input type="text" id="client_ssn" class="form-control" placeholder="SSN">
+						</div>
+						<div class="input-group mb-3">
+							<span class="input-group-text">DOB</span>
+							<input type="text" id="client_dob" class="form-control" placeholder="DOB">
+						</div>
+						<div class="input-group mb-3">
+							<span class="input-group-text">Addr</span>
+							<input type="text" id="client_addr" class="form-control" placeholder="Addr">
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="row gy-3 gx-2">
+			<div class="col-lg-12">
+				<div class="border bg-light h-100">
+					<div class="p-3">
+						<textarea id="txt_hippa" class="form-control" style="min-height: 100px"></textarea>
+					</div>
+				</div>
+			</div>
+		</div>
+
+	</div>
+</body>
+
+<script type='text/javascript' src="scripts.js"></script>
+<script type='text/javascript'>
+	window.page_handler = new PageHandler();
+</script>
+
+</html>
