@@ -200,7 +200,7 @@ class GenericTextBoard extends GenericHandler{
 				for(let i = 0; i < arr_selected.length; i++){
 					if(i > 0) str_out += ", ";
 					if(i > 1 && i === arr_selected.length - 1) str_out += "and ";
-					str_out += arr_selected[i].label;
+					str_out += arr_selected[i].value;
 				}
 				break;
 		}
@@ -256,7 +256,7 @@ class OpeningTextboard extends GenericTextBoard{
 			}
 		}
 
-		this.str_output += '.';
+		this.str_output += '. ';
 		
 		if(!(this.isEmptyString(this.fields['client_ssn'])
 			&& this.isEmptyString(this.fields['client_dob'])
@@ -268,7 +268,7 @@ class OpeningTextboard extends GenericTextBoard{
 			if(!this.isEmptyString(this.fields['client_dob'])) this.str_output += "/DOB";
 			if(!this.isEmptyString(this.fields['client_addr'])) this.str_output += "/ADDR";
 
-			this.str_output += " in state systems.";
+			this.str_output += " in state systems. ";
 		}
 	}
 
