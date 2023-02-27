@@ -2,7 +2,7 @@ class PageHandler{
 	constructor(){
 		try{
 			this.notification_handler = new NotificationHandler();
-			this.scratchpad = new ScratchPadHandler("txt_hippa");
+			this.scratchpad = new ScratchPadHandler("txt_hippa", "btn_reset");
 			this.scratchpad.addTextboard(new OpeningTextboard());
 
 		}catch(e){ console.log(e); }
@@ -209,6 +209,9 @@ class GenericTextBoard extends GenericHandler{
 
 	clear(){
 		this.str_output = new String();
+		
+		for(var key in this.fields) this.fields[key] = '';
+
 		this.elements.forEach((el)=>{
 			switch(el.tagName){
 				case 'INPUT':
@@ -274,15 +277,17 @@ class OpeningTextboard extends GenericTextBoard{
 
 }
 
-
-
 class ScratchPadHandler extends GenericHandler{
-	constructor(text_id){
+	constructor(text_id, reset_id){
 		super(text_id);
 
 		this.txt_pad = document.getElementById(text_id);
 		if(!this.txt_pad)
 			throw new Error("Could not find scratchpad!");
+
+		this.btn_reset = document.getElementById(reset_id);
+		if(this.btn_reset)
+			this.btn_reset.addEventListener('click', this.clear.bind(this));
 
 		this.boards = new Array();
 
