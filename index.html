@@ -10850,27 +10850,19 @@ textarea.form-control-lg {
 			<div class="col-lg-12">
 				<div class="border bg-light h-100">		
 					<div class="p-3 widget" id="tb_caller">
-						<h4>Opening</h4>
 						<div class="input-group mb-3">
-							<input type="text" id="caller_fname" class="form-control" placeholder="Caller First Name" aria-label="Caller First Name">
+							<input type="text" id="caller_fname" class="form-control" placeholder="Caller First Name" aria-label="Caller First Name" x-semaphore>
 							<input type="text" id="caller_lname" class="form-control" placeholder="Last Name" aria-label="Last Name">
 						</div>
 						<div class="input-group mb-3">
 							<span class="input-group-text">calling for</span>
-							<input type="text" id="client_fname" class="form-control" placeholder="Client First Name" aria-label="Client First Name">
+							<input type="text" id="client_fname" class="form-control" placeholder="First Name" aria-label="Client First Name">
 							<input type="text" id="client_lname" class="form-control" placeholder="Last Name" aria-label="Last Name">
 						</div>
 						<div class="input-group mb-3">
 							<span class="input-group-text">Reason</span>
-							<select class="form-select" id="call_reason">
+							<select class="form-select d-none" id="call_reason" x-semaphore>
 								<option value="" selected>Other</option>
-								<option value="report a change">RMC</option>
-								<option value="check the status of an application">Application Status</option>
-								<option value="check their coverage status">Coverage Status</option>
-								<option value="resolve a billing/claim issue">Billing/Claim Issue</option>
-								<option value="change their MCO">MCO Change</option>
-								<option value="remove a TPL">TPL Removal</option>
-								<option value="deem a newborn">Newborn Deeming</option>
 							</select>
 						</div>
 						<div class="input-group mb-3">
@@ -10892,12 +10884,74 @@ textarea.form-control-lg {
 				</div>
 			</div>
 		</div>
-
+		<div class="row gy-3 gx-2">
+			<div class="col-lg-12">
+				<div class="border bg-light h-100">
+					<div class="p-3 widget" id="tb_vacms">
+						<h4>Coverage</h4>
+						<div class="input-group mb-3">
+							<input type="text" id="vacms_case" class="form-control" placeholder="VaCMS Case ID" maxlength="9">
+							<select class="form-select" id="case_status" x-semaphore>
+								<option value=""></option>
+								<option value="active">Active</option>
+								<option value="pending">Pending</option>
+								<option value="closed">Closed</option>
+							</select>
+						</div>
+						<div class="input-group mb-3">
+							<input type="text" id="vacms_app" class="form-control" placeholder="T#">
+							<select class="form-select" id="app_status" x-semaphore>
+								<option value=""></option>
+								<option value="approved">Approved</option>
+								<option value="pending">Pending</option>
+								<option value="denied">Denied</option>								
+							</select>
+						</div>
+						<div class="input-group mb-3">
+							<select class="form-select d-none" id="mmis_aidcode" x-semaphore>
+								<option value="" selected>Aid Code</option>
+							</select>
+						</div>
+						<div class="input-group mb-3">
+							<select class="form-select d-none" id="mmis_mco" x-semaphore>
+								<option value="" selected>Managed Care Organization</option>
+							</select>
+						</div>
+						<div class="input-group mb-3">
+							<input type="text" class="form-control" id="cw_name" placeholder="Case worker">
+							<input type="text" class="form-control" id="cw_phone" placeholder="Phone">
+						</div>
+						<div class="input-group mb-3">
+							<select class="form-select d-none" id="case_locality">
+								<option value="" selected>Locality</option>
+							</select>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>		
+		<div class="row gy-3 gx-2">
+			<div class="col-lg-12">
+				<div class="border bg-light h-100">
+					<div class="p-3 widget" id="tb_closing">
+						<h4>Disposition</h4>
+						<div class="input-group mb-3">
+							<select class="form-select d-none" id="call_disposition" x-semaphore>
+								<option value="">Call Resolution</option>
+							</select>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
 		<div class="row gy-3 gx-2">
 			<div class="col-lg-12">
 				<div class="border bg-light h-100">
 					<div class="p-3">
-						<textarea id="txt_hippa" class="form-control" style="min-height: 100px"></textarea>
+						<textarea id="txt_hipaa" class="form-control" style="min-height: 100px" disabled></textarea>
+					</div>
+					<div class="input-group d-grid">
+						<button class="btn btn-primary" type="button" id="btn_copy">Copy To Clipboard</button>
 					</div>
 				</div>
 			</div>
@@ -10912,46 +10966,11 @@ textarea.form-control-lg {
 		constructor(){
 			try{
 				this.notification_handler = new NotificationHandler();
-				this.scratchpad = new ScratchPadHandler("txt_hippa", "btn_reset");
+				this.scratchpad = new ScratchPadHandler();
 				this.scratchpad.addTextboard(new OpeningTextboard());
+				this.scratchpad.addTextboard(new VaCMSTextBoard());
 
 			}catch(e){ console.log(e); }
-		}
-	}
-
-	class GenericHandler{
-		constructor(el){
-			this.parent = this.findParent(document.getElementById(el));
-		}
-
-		findParent(el){
-
-			if(!(el && el instanceof Element))
-				return null;
-			
-			if(el.classList.contains('widget'))
-				return el;
-
-			return this.findParent(el.parentElement);
-		}
-
-		hide(){
-			if(this.hasParent())
-				this.parent.classList.add('d-none');
-		}
-
-		unhide(){
-			if(this.hasParent())
-				this.parent.classList.remove('d-none');
-		}
-
-		hasParent(){
-			return (this.parent && this.parent instanceof Element);
-		}
-
-		isEmptyString(str){
-			let str_test = new String(str);
-			return !(str_test && str_test.trim().length > 0);
 		}
 	}
 
@@ -11003,6 +11022,39 @@ textarea.form-control-lg {
 				body: body
 			}));
 		}
+	}
+
+	class GenericHandler{
+		constructor(el){
+			this.parent = this.findParent(document.getElementById(el));
+		}
+
+		findParent(el){
+
+			if(!(el && el instanceof Element))
+				return null;
+			
+			if(el.classList.contains('widget'))
+				return el;
+
+			return this.findParent(el.parentElement);
+		}
+
+		hide(){
+			if(this.hasParent())
+				this.parent.classList.add('d-none');
+		}
+
+		unhide(){
+			if(this.hasParent())
+				this.parent.classList.remove('d-none');
+		}
+
+		hasParent(){
+			return (this.parent && this.parent instanceof Element);
+		}
+
+		isEmptyString(str){ return CVCC_Utility.isEmptyString(str); }
 	}
 
 	class TimeInterval{
@@ -11069,6 +11121,80 @@ textarea.form-control-lg {
 		static months = [ { name : "January", length: 31 }, { name : "February", length: 28 }, { name : "March", length: 31 }, { name : "April", length: 30 }, { name : "May", length: 31 }, { name : "June", length: 30 }, { name : "July", length: 31 }, { name : "August", length: 31 }, { name : "September", length: 30 }, { name : "October", length: 31 }, { name : "November", length: 30 }, { name : "December", length: 31 } ]; 
 	}
 
+	class ScratchPadHandler extends GenericHandler{
+		constructor(){
+			super('txt_hipaa');
+
+			this.txt_pad = document.getElementById('txt_hipaa');
+			if(!this.txt_pad)
+				throw new Error("Could not find scratchpad!");
+
+			this.btn_reset = document.getElementById('btn_reset');
+			if(this.btn_reset)
+				this.btn_reset.addEventListener('click', this.clear.bind(this));
+
+			this.btn_copy = document.getElementById('btn_copy');
+			if(this.btn_copy)
+				this.btn_copy.addEventListener('click', this.copyToClipboard.bind(this));
+
+			
+			this.boards = new Array();
+			this.obj_semaphore = new Map();
+
+			this.clear();
+			this.unhide();
+		}
+
+		clear(){
+			this.txt_pad.value = '';
+			this.boards.forEach((b)=>{b.clear();});
+		}
+
+		addTextboard(board){
+			board.parent.addEventListener('input', this.compileText.bind(this));
+			board.semaphore = this.semaphore.bind(this);
+			this.boards.push(board);
+		}
+
+		semaphore(key, val){
+			if(!key) return;
+			this.obj_semaphore.set(key, val);
+			this.broadcast(key, val);
+		}
+
+		broadcast(key, val){
+			this.boards.forEach((b)=>{
+				b.receive(key, val);
+			});
+		}
+
+		compileText(){
+			let arr_output = [];
+			this.boards.forEach((val)=>{
+				arr_output.push(val.toString());
+			});
+			this.txt_pad.value = arr_output.join(' ');
+		}
+
+		copyToClipboard(){
+			this.txt_pad.select();
+			this.txt_pad.setSelectionRange(0, Number.MAX_SAFE_INTEGER);
+			navigator.clipboard.writeText(this.txt_pad.value);
+			this._copySuccessStart();
+		}
+
+		_copySuccessStart(){
+			this.btn_copy.classList.replace('btn-primary', 'btn-success');
+			if(this.btn_copy_timeout) clearTimeout(this.btn_copy_timeout); 
+			this.btn_copy_timeout = setTimeout(this._copySuccessFinish.bind(this), 500);
+		}
+
+		_copySuccessFinish(){
+			this.btn_copy.classList.replace('btn-success', 'btn-primary');
+			this.btn_copy_timeout = 0;
+		}
+	}
+
 	class GenericTextBoard extends GenericHandler{
 		constructor(widget_id){
 			super(widget_id);
@@ -11076,6 +11202,7 @@ textarea.form-control-lg {
 			this.active = false;
 			this.str_output = new String();
 			this.str_format = new String();
+			this.semaphore = null;
 			this.initializeFields();
 			this.unhide();
 		}
@@ -11095,26 +11222,31 @@ textarea.form-control-lg {
 		}
 
 		update(el, evt){
-			let str_out = new String();
+			if(!el) return;
+			let str_out = new String(), str_sem = null;
 			switch(el.tagName){
 				case 'INPUT':
-					str_out += el.value;
+					str_out = el.value;
 					break;
 
 				case 'TEXTAREA':
-					str_out += el.value;
+					str_out = el.value;
 					break;
 
 				case 'SELECT':
-					let arr_selected = el.selectedOptions;
+					let arr_selected = el.selectedOptions, val_selected = new Array(), sem_selected = new Array();
 					for(let i = 0; i < arr_selected.length; i++){
-						if(i > 0) str_out += ", ";
-						if(i > 1 && i === arr_selected.length - 1) str_out += "and ";
-						str_out += arr_selected[i].value;
+						val_selected.push(arr_selected[i].value);
+						if(arr_selected[i].hasAttribute('x-semaphore')) sem_selected.push(arr_selected[i].getAttribute('x-semaphore'));
 					}
+					str_out = CVCC_Utility.oxfordComma(val_selected);
+					if(sem_selected.length > 0) str_sem = sem_selected.join();
 					break;
 			}
 			this.fields[el.id ?? ''] = str_out.trim();
+			if(this.semaphore && el.hasAttributes() && el.hasAttribute('x-semaphore'))
+				this.semaphore(el.id, str_sem ?? str_out);
+
 		}
 
 		clear(){
@@ -11139,6 +11271,50 @@ textarea.form-control-lg {
 			});
 		}
 
+		oxfordComma(arr){
+			if(!(arr && arr instanceof Array)) return '';
+			let retval = new String(), ix = 0, lastval = null;
+			for(var s of arr){
+				if(lastval) retval += (ix > 1 ? ', ' : '') + lastval;
+				ix++;
+				lastval = s;
+			}
+			if(lastval) retval += (ix > 1 ? (ix > 2 ? ', and ' : ' and ') : '') + lastval;
+			return retval;
+		}
+
+		any(...args){
+			for(var fn of args)
+				if(!this.empty(fn)) return true;
+
+			return false;
+		}
+
+		all(...args){
+			for(var fn of args)
+				if(this.empty(fn)) return false;
+
+			return true;
+		}
+
+		none(...args){
+			for(var fn of args)
+				if(!this.empty(fn)) return false;
+
+			return true;
+		}
+
+		empty(ix){
+			return this.isEmptyString(ix) || this.isEmptyString(this.fields[ix]);
+		}
+
+		f(key){
+			if(this.isEmptyString(key)) return '';
+			return this.fields[key];
+		}
+
+		receive(key, val){ }
+
 		updateOutput(){ this.str_output = "Not implemented."; }
 
 		toString(){
@@ -11150,77 +11326,237 @@ textarea.form-control-lg {
 	class OpeningTextboard extends GenericTextBoard{
 		constructor(){
 			super("tb_caller");
+			this.fillSelects();
 		}
 
 		updateOutput(){
 			this.str_output = new String();
+			let str_arr = [];
 
-			if(this.isEmptyString(this.fields['caller_fname']) && this.isEmptyString(this.fields['caller_lname'])) return;
+			if(this.empty('caller_fname')) return;
 
-			this.str_output = this.str_output.concat(this.fields['caller_fname'], ' ', this.fields['caller_lname'], ' called CVCC ');
-			if(!(this.isEmptyString(this.fields['client_fname']) && this.isEmptyString(this.fields['client_lname'])))
-				this.str_output = this.str_output.concat('on behalf of ', this.fields['client_fname'], ' ', this.fields['client_lname']);
+			str_arr.push(`${this.f('caller_fname')} ${this.f('caller_lname')} called CVCC${this.any('client_fname', 'client_lname') ? ` on behalf of ${this.f('client_fname')} ${this.f('client_lname')}`: ''} on ${(new Date()).toDateString()}.`);
 
-			if(!(this.isEmptyString(this.fields['call_reason']) && this.isEmptyString(this.fields['call_reason_other']))){
-				this.str_output += ' to ' + this.fields['call_reason'];
-				if(!this.isEmptyString(this.fields['call_reason_other'])){
-					if(!this.isEmptyString(this.fields['call_reason'])) this.str_output += ' and ';
-					this.str_output += this.fields['call_reason_other'];
-				}
+			if(this.any('call_reason', 'call_reason_other')){
+				let cr = CVCC_Utility.getCallReason(this.f('call_reason'));
+				str_arr.push(`${this.f('caller_fname')} called to ${cr ? cr.text : ''}${this.empty('call_reason_other') ? '' : `${this.empty('call_reason') ? '' : ' and '}${this.f('call_reason_other')}`}.`);
 			}
-
-			this.str_output += '. ';
 			
-			if(!(this.isEmptyString(this.fields['client_ssn'])
-				&& this.isEmptyString(this.fields['client_dob'])
-				&& this.isEmptyString(this.fields['client_addr']) )){
+			if(this.any('client_ssn', 'client_dob', 'client_addr'))
+				str_arr.push(`Verified NAME${this.empty('client_ssn')?'':'/SSN'}${this.empty('client_dob')?'':'/DOB'}${this.empty('client_addr')?'':'/ADDR'} in state systems.`);
 
-				this.str_output += 'Verified NAME';
-
-				if(!this.isEmptyString(this.fields['client_ssn'])) this.str_output += "/SSN";
-				if(!this.isEmptyString(this.fields['client_dob'])) this.str_output += "/DOB";
-				if(!this.isEmptyString(this.fields['client_addr'])) this.str_output += "/ADDR";
-
-				this.str_output += " in state systems. ";
-			}
+			this.str_output = str_arr.join(' ');
 		}
 
+		fillSelects(){
+			let cr = this.parent.querySelector('#call_reason');
+			if(cr){
+				for(var c of CVCC_Utility.callreasons)
+					cr.add(new Option(c.option, c.code));
+
+				cr.classList.remove('d-none');
+			}
+		}
 	}
 
-	class ScratchPadHandler extends GenericHandler{
-		constructor(text_id, reset_id){
-			super(text_id);
-
-			this.txt_pad = document.getElementById(text_id);
-			if(!this.txt_pad)
-				throw new Error("Could not find scratchpad!");
-
-			this.btn_reset = document.getElementById(reset_id);
-			if(this.btn_reset)
-				this.btn_reset.addEventListener('click', this.clear.bind(this));
-
-			this.boards = new Array();
-
-			this.clear();
-			this.unhide();
+	class VaCMSTextBoard extends GenericTextBoard{
+		constructor(){
+			super("tb_vacms");
+			this.fillSelects();
 		}
 
-		clear(){
-			this.txt_pad.value = '';
-			this.boards.forEach((b)=>{b.clear();});
+		fillSelects(){
+			let aidcode = this.parent.querySelector('#mmis_aidcode'),
+				mco = this.parent.querySelector('#mmis_mco');
+
+			if(aidcode){
+				for(var code of CVCC_Utility.aidcodes)
+					aidcode.add(new Option(code.code));
+
+				aidcode.classList.remove('d-none');
+			}
+
+			if(mco){
+				for(var m of CVCC_Utility.mcos)
+					mco.add(new Option(m.name, m.NPI));
+
+				mco.classList.remove('d-none');
+			}
 		}
 
-		addTextboard(board){
-			board.parent.addEventListener('input', this.compileText.bind(this));
-			this.boards.push(board);
+		updateOutput(){
+			this.str_output = new String();
+			let str_arr = [];
+
+			if(this.all('vacms_case', 'case_status'))
+				str_arr.push(`VaCMS case ${this.f('vacms_case')}${this.empty('case_status') ? '' : ` is ${this.f('case_status')}`}.`);
+
+			if(this.all('vacms_app', 'app_status'))
+				str_arr.push(`VaCMS application ${this.f('vacms_app')}${this.empty('app_status') ? '' : ` is ${this.f('app_status')}`}.`);
+	
+			let ac = CVCC_Utility.getAidCode(this.f('mmis_aidcode'));
+			if(ac) str_arr.push(`Aid code is ${ac.code}: ${ac.name}.`);
+
+			let mc = CVCC_Utility.getMCO(this.f('mmis_mco'));
+			if(mc) str_arr.push(`MCO is ${mc.name} (${mc.phone}).`);
+			
+			this.str_output = str_arr.join(' ');
+		}
+	}
+
+	class ClosingTextBoard extends GenericTextBoard{
+		constructor(){
+			super("tb_closing");
+			this.fillSelects();
 		}
 
-		compileText(){
-			let str_output = new String();
-			this.boards.forEach((val)=>{
-				str_output += val.toString();
-			});
-			this.txt_pad.value = str_output;
+		fillSelects(){
+			let aidcode = this.parent.querySelector('#mmis_aidcode'),
+				mco = this.parent.querySelector('#mmis_mco'),
+				locality = this.parent.querySelector('#case_locality');
+
+			if(aidcode){
+				for(var code of CVCC_Utility.aidcodes)
+					aidcode.add(new Option(code.code));
+
+				aidcode.classList.remove('d-none');
+			}
+
+			if(mco){
+				for(var m of CVCC_Utility.mcos)
+					mco.add(new Option(m.name, m.NPI));
+
+				mco.classList.remove('d-none');
+			}
+
+			if(locality){
+				for(var m of CVCC_Utility.localities){
+					console.log(m);
+					locality.add(new Option(m.county, m.county));
+				}
+
+				locality.classList.remove('d-none');
+			}
+		}
+
+		updateOutput(){
+			this.str_output = new String();
+			let str_arr = [];
+
+			if(this.all('vacms_case', 'case_status'))
+				str_arr.push(`VaCMS case ${this.f('vacms_case')}${this.empty('case_status') ? '' : ` is ${this.f('case_status')}`}.`);
+
+			if(this.all('vacms_app', 'app_status'))
+				str_arr.push(`VaCMS application ${this.f('vacms_app')}${this.empty('app_status') ? '' : ` is ${this.f('app_status')}`}.`);
+	
+			let ac = CVCC_Utility.getAidCode(this.f('mmis_aidcode'));
+			if(ac) str_arr.push(`Aid code is ${ac.code}: ${ac.name}.`);
+
+			let mc = CVCC_Utility.getMCO(this.f('mmis_mco'));
+			if(mc) str_arr.push(`MCO is ${mc.name} (${mc.phone}).`);
+			
+			this.str_output = str_arr.join(' ');
+		}
+	}
+
+
+	class CVCC_Utility{
+		static localities = [{ "county": "Accomack", "address": "22554 Center Parkway, Accawmacke Office Park, P. O. Box 210, Accomack, VA 23301", "phone": "(757) 787-1530", "fax": "(757) 787-1530" }, { "county": "Albemarle", "address": "1600 Fifth St., Suite A, Charlottesville, VA 22902", "phone": "(434) 972-4010", "fax": "(434) 972-4010" }, { "county": "Alexandria Department of Community and Human Services", "address": "2525 Mount Vernon Ave., Alexandria, VA 22301", "phone": "(703) 746-5700", "fax": "(703) 746-5700" }, { "county": "Alleghany-Covington", "address": "110 Rosedale Ave., Suite B, Covington, VA 24426", "phone": "(540) 444-7100", "fax": "(540) 444-7100" }, { "county": "Amelia", "address": "16360 Dunn Street Suite 201, P.O. Box 136, Amelia, VA 23002", "phone": "(804) 561-2681", "fax": "(804) 561-2681" }, { "county": "Amherst", "address": "224 2nd St., P. O. Box 414, Amherst, VA 24521", "phone": "(434) 946-9330", "fax": "(434) 946-9330" }, { "county": "Appomattox", "address": "318 Court St., P. O. Box 549, Appomattox, VA 24522", "phone": "(434) 352-7125", "fax": "(434) 352-7125" }, { "county": "Arlington", "address": "2100 Washington Blvd. - 1st Fl., Arlington, VA 22204", "phone": "(703) 228-1350", "fax": "(703) 228-1350" }, { "county": "Bath", "address": "65 Courthouse Hill Road, P.O. Box 7, Warm Springs, VA 24484", "phone": "(540) 839-7271", "fax": "(540) 839-7271" }, { "county": "Bedford", "address": "Burks-Scott Building, 119 E. Main St., PO Box 1187, Bedford, VA 24523", "phone": "(540) 586-7750", "fax": "(540) 586-7750" }, { "county": "Bland", "address": "612 Main St., Suite 208, P.O. Box 55, Bland County Court House, Suite 208, Bland, VA 24315", "phone": "(276) 688-4111", "fax": "(276) 688-4111" }, { "county": "Botetourt", "address": "220 Commons Parkway, P. O. Box 99, Daleville, VA 24083", "phone": "(540) 591-5960", "fax": "(540) 591-5960" }, { "county": "Bristol City", "address": "355 Bristol East Road, Bristol, VA 24202", "phone": "(276) 645-7450", "fax": "(276) 645-7450" }, { "county": "Brunswick", "address": "201 Sharp St., Suite 100, Lawrenceville, VA 23868", "phone": "(434) 848-2142", "fax": "(434) 848-2142" }, { "county": "Buchanan", "address": "3174 Slate Creek Road, Grundy, VA 24614", "phone": "(276) 935-8106", "fax": "(276) 935-8106" }, { "county": "Buckingham", "address": "13360 West James Anderson Highway, Route 60, P. O. Box 170, Buckingham Court House, VA 23921", "phone": "(434) 969-4246", "fax": "(434) 969-4246" }, { "county": "Campbell", "address": "69 Kabler Lane, P.O. Box 860, Rustburg, VA 24588", "phone": "(434) 332-9585", "fax": "(434) 332-9585" }, { "county": "Caroline", "address": "17202 Richmond Turnpike, P.O. Box 430, Bowling Green, VA 22427", "phone": "(804) 633-5071", "fax": "(804) 633-5071" }, { "county": "Carroll", "address": "Carroll Co. Governmental Complex, 605-8 Pine St., Hillsville, VA 24343", "phone": "(276) 730-3130", "fax": "(276) 730-3130" }, { "county": "Charles City", "address": "10900 Courthouse Road, P.O. Box 98, Charles City, VA 23030", "phone": "(804) 652-1708", "fax": "(804) 652-1708" }, { "county": "Charlotte", "address": "400 Thomas Jefferson Hwy, PO Box 440, Charlotte Court House, VA 23923", "phone": "(434) 542-5164", "fax": "(434) 542-5164" }, { "county": "Charlottesville", "address": "120 Seventh St., N.E., P.O. Box 911, Charlottesville, VA 22902", "phone": "(434) 970-3400", "fax": "(434) 970-3400" }, { "county": "Chesapeake", "address": "100 Outlaw St., P.O. Box 15098, Chesapeake, VA 23320", "phone": "(757) 382-2000", "fax": "(757) 382-2000" }, { "county": "Chesterfield/Colonial Heights", "address": "9501 Lucy Corr Circle, P.O. Box 430, Chesterfield, VA 23832", "phone": "(804) 748-1100", "fax": "(804) 748-1100" }, { "county": "Clarke", "address": "311 E. Main St., Berryville, VA 22611", "phone": "(540) 955-3700", "fax": "(540) 955-3700" }, { "county": "Craig", "address": "177 Court St., P. O. Box 330, New Castle, VA 24127", "phone": "(540) 864-5117", "fax": "(540) 864-5117" }, { "county": "Culpeper", "address": "1835 Industry Drive, P.O. Box 1355, Culpeper, VA 22701", "phone": "(540) 727-0372", "fax": "(540) 727-0372" }, { "county": "Cumberland", "address": "71 Community Center Drive, P. O. Box 33, Cumberland, VA 23040", "phone": "(804) 492-4915", "fax": "(804) 492-4915" }, { "county": "Danville", "address": "510 Patton St., P. O. Box 3300, Danville, VA 24541", "phone": "(434) 799-6543", "fax": "(434) 799-6543" }, { "county": "Dickenson", "address": "1280 Browning Hollow, P.O. Box 417, Clintwood, VA 24228", "phone": "(276) 926-1661", "fax": "(276) 926-1661" }, { "county": "Dinwiddie", "address": "14010 Boydton Plank Road, P.O. Box 107, Dinwiddie, VA 23841", "phone": "(804) 469-4524", "fax": "(804) 469-4524" }, { "county": "Essex", "address": "772 Richmond Beach Road, P.O. Box 1004, Tappahannock, VA 22560", "phone": "(804) 443-3561", "fax": "(804) 443-3561" }, { "county": "Fairfax", "address": "12011 Government Center Parkway, Suite 232, Fairfax, VA 22035", "phone": "(703) 324-7500", "fax": "(703) 324-7500" }, { "county": "Fauquier", "address": "320 Hospital Drive, Suite 11, Warrenton, VA 20186", "phone": "(540) 422-8400", "fax": "(540) 422-8400" }, { "county": "Floyd", "address": "120 W. Oxford St., Building A-2, P.O. Box 314, Floyd, VA 24091", "phone": "(540) 745-9316", "fax": "(540) 745-9316" }, { "county": "Fluvanna", "address": "8880 B James Madison Highway, P.O. Box 98, Fork Union, VA 23055", "phone": "(434) 842-8221", "fax": "(434) 842-8221" }, { "county": "Franklin City", "address": "306 N. Main St, PO Box 601, Franklin , VA 23851", "phone": "(757) 562-8520", "fax": "(757) 562-8520" }, { "county": "Franklin", "address": "120 East Court Street, Rocky Mount, VA 24151, P.O. Box 418, Rocky Mount, VA 24151", "phone": "(540) 483-9247", "fax": "(540) 483-9247" }, { "county": "Frederick", "address": "107 N. Kent St., Third Floor, Winchester, VA 22601", "phone": "(540) 665-5688", "fax": "(540) 665-5688" }, { "county": "Fredericksburg", "address": "608 Jackson Street, Suite 100, Fredericksburg, VA 22401", "phone": "(540) 372-1032", "fax": "(540) 372-1032" }, { "county": "Galax City", "address": "105 E. Center St, P.O. Box 166, Galax, VA 24333-0166", "phone": "(276) 236-8111", "fax": "(276) 236-8111" }, { "county": "Giles", "address": "211 Main St., Suite 109, Narrows, VA 24124", "phone": "(540) 726-8315", "fax": "(540) 726-8315" }, { "county": "Gloucester", "address": "6641 Short Lane, P.O. Box 1390, Gloucester, VA 23061", "phone": "(804) 693-2671", "fax": "(804) 693-2671" }, { "county": "Goochland", "address": "1800 Sandy Hook Road, Suite 200, P.O. Box 34, Goochland, VA 23063", "phone": "(804) 556-5880", "fax": "(804) 556-5880" }, { "county": "Grayson", "address": "129 Davis St., P.O. Box 434, Independence, VA 24348", "phone": "(276) 773-2452", "fax": "(276) 773-2452" }, { "county": "Greene", "address": "10009 Spotswood Trail, Stanardsville, VA 22973", "phone": "(434) 985-5246", "fax": "(434) 985-5246" }, { "county": "Greensville/Emporia", "address": "1100 Greensville County Circle, P.O. Box 1136, Emporia, VA 23847", "phone": "(434) 634-6576", "fax": "(434) 634-6576" }, { "county": "Halifax", "address": "1030 Cowford Road, P. O. Box 1189, Halifax, VA 24558", "phone": "(434) 476-6594", "fax": "(434) 476-6594" }, { "county": "Hampton", "address": "1320 LaSalle Ave., Hampton, VA 23669", "phone": "(757) 727-1800", "fax": "(757) 727-1800" }, { "county": "Hanover", "address": "12304 S. Washington Highway, Ashland, VA 23005", "phone": "(804) 365-4100", "fax": "(804) 365-4100" }, { "county": "Harrisonburg-Rockingham Dept. of Social Services", "address": "110 N. Mason St., P.O. Box 809, Harrisonburg, VA 22803", "phone": "(540) 574-5100", "fax": "(540) 574-5100" }, { "county": "Henrico", "address": "8600 Dixon Powers Drive, P.O. Box 90775, Henrico, VA 23273", "phone": "(804) 501-4001", "fax": "(804) 501-4001" }, { "county": "Henry-Martinsville", "address": "20 Progress Drive, P.O. Drawer 4946, Martinsville, VA 24115", "phone": "(276) 656-4300", "fax": "(276) 656-4300" }, { "county": "Highland", "address": "158 Courthouse Lane, Courthouse Annex, P.O. Box 247, Monterey, VA 24465", "phone": "(540) 468-2199", "fax": "(540) 468-2199" }, { "county": "Hopewell", "address": "316 E. Cawson Street, Hopewell, VA 23860", "phone": "(804) 541-2330", "fax": "(804) 541-2330" }, { "county": "Isle of Wight", "address": "17100 Monument Circle, Suite A, PO Box 102, Isle of Wight, VA 23397", "phone": "(757) 365-0880", "fax": "(757) 365-0880" }, { "county": "James City", "address": "5249 Old Towne Road, Williamsburg, VA 23188", "phone": "(757) 259-3100", "fax": "(757) 259-3100" }, { "county": "King and Queen", "address": "242 Allen Circle, P.O. Box 7, King and Queen Courthouse, VA 23085", "phone": "(804) 769-5003", "fax": "(804) 769-5003" }, { "county": "King George", "address": "10069 Kings Highway, P.O. Box 130, King George, VA 22484", "phone": "(540) 775-3544", "fax": "(540) 775-3544" }, { "county": "King William", "address": "172 Courthouse Lane, P.O. Box 187, King William, VA 23086", "phone": "(804) 769-4905", "fax": "(804) 769-4905" }, { "county": "Lancaster", "address": "9049 Mary Ball Road, P.O. Box 308, Lancaster, VA 22503", "phone": "(804) 462-5141", "fax": "(804) 462-5141" }, { "county": "Lee", "address": "108 Hill St., P.O. Box 348, Jonesville, VA 24264", "phone": "(276) 346-1010", "fax": "(276) 346-1010" }, { "county": "Loudoun", "address": "102 Heritage Way, Suite 103, PO Box 7400, Leesburg, VA 20177", "phone": "(703) 777-0353", "fax": "(703) 777-0353" }, { "county": "Louisa", "address": "103 McDonald St., P.O. Box 425, Louisa, VA 23093", "phone": "(540) 967-1320", "fax": "(540) 967-1320" }, { "county": "Lunenburg", "address": "11387 Courthouse Road, Lunenburg, VA 23952", "phone": "(434) 696-2134", "fax": "(434) 696-2134" }, { "county": "Lynchburg", "address": "99 9th St., P.O. Box 6798, Lynchburg, VA 24505", "phone": "(434) 455-5850", "fax": "(434) 455-5850" }, { "county": "Madison", "address": "101 S. Main St., P.O. Box 176, Madison, VA 22727", "phone": "(540) 948-5521", "fax": "(540) 948-5521" }, { "county": "Manassas City", "address": "9324 West Street, Manassas, VA 20110", "phone": "(703) 361-8277", "fax": "(703) 361-8277" }, { "county": "Manassas Park", "address": "100 Nadia Street, 2nd Floor, Manassas Park, VA 20111", "phone": "(703) 335-8880", "fax": "(703) 335-8880" }, { "county": "Mathews", "address": "Route 611, 536 Church Street, P.O. Box 925, Mathews, VA 23109", "phone": "(804) 725-7192", "fax": "(804) 725-7192" }, { "county": "Mecklenburg", "address": "911 Madison St., P.O. Box 400, Boydton, VA 23917", "phone": "(434) 738-6138", "fax": "(434) 738-6138" }, { "county": "Middlesex", "address": "2893 General Puller Highway, P.O. Box 216, Urbanna, VA 23175", "phone": "(804) 758-2348", "fax": "(804) 758-2348" }, { "county": "Montgomery", "address": "210 S. Pepper St., Suite B, P.O. Box 789, Christiansburg, VA 24073", "phone": "(540) 382-6990", "fax": "(540) 382-6990" }, { "county": "Nelson", "address": "203 Front St., P.O. Box 357, Lovingston, VA 22949", "phone": "(434) 263-7160", "fax": "(434) 263-7160" }, { "county": "New Kent", "address": "7911 Courthouse Way, Suite 100, P.O. Box 229, New Kent, VA 23124", "phone": "(804) 966-1853", "fax": "(804) 966-1853" }, { "county": "Newport News", "address": "Rouse Tower, 6060 Jefferson Ave., Newport News, VA 23605", "phone": "(757) 926-6300", "fax": "(757) 926-6300" }, { "county": "Norfolk", "address": "741 Monticello Avenue, Norfolk, VA 23510", "phone": "(757) 664-6000", "fax": "(757) 664-6000" }, { "county": "Northampton", "address": "5265 The Hornes, P.O. Box 568, Eastville, VA 23347", "phone": "(757) 678-5153", "fax": "(757) 678-5153" }, { "county": "Northumberland", "address": "6373 Northumberland Highway, Suite A, P.O. Box 399, Heathsville, VA 22473", "phone": "(804) 580-3477", "fax": "(804) 580-3477" }, { "county": "Norton City", "address": "644 Park Avenue NW, P.O. Box 378, Norton, VA 24273", "phone": "(276) 679-2701", "fax": "(276) 679-2701" }, { "county": "Nottoway", "address": "288 W. Courthouse Road, P. O. Box 26, Nottoway, VA 23955", "phone": "(434) 645-8494", "fax": "(434) 645-8494" }, { "county": "Orange", "address": "146 N. Madison Road, Suite 201, Orange, VA 22960", "phone": "(540) 672-1155", "fax": "(540) 672-1155" }, { "county": "Page", "address": "215 W. Main St., Suite A, P.O. Box 47, Stanley, VA 22851", "phone": "(540) 778-1053", "fax": "(540) 778-1053" }, { "county": "Patrick", "address": "106 Rucker St., Suite 128, Stuart, VA 24171", "phone": "(276) 694-3328", "fax": "(276) 694-3328" }, { "county": "Petersburg", "address": "3811 Corporate Rd., Petersburg, VA 23805", "phone": "(804) 861-4720", "fax": "(804) 861-4720" }, { "county": "Pittsylvania", "address": "220 H. G. McGhee Drive, P.O. Box E, Chatham, VA 24531", "phone": "(434) 432-7281", "fax": "(434) 432-7281" }, { "county": "Portsmouth", "address": "1701 High St., Suite 101, Portsmouth, VA 23704", "phone": "(757) 405-1800", "fax": "(757) 405-1800" }, { "county": "Powhatan", "address": "3908 Old Buckingham Road - Suite 2, Powhatan, VA 23139", "phone": "(804) 598-5630", "fax": "(804) 598-5630" }, { "county": "Prince Edward", "address": "56B SMI Way, Farmville, VA 23901", "phone": "(434) 392-3113", "fax": "(434) 392-3113" }, { "county": "Prince George", "address": "6450 Administration Drive, Building 12, P.O. Box 68, Prince George, VA 23875", "phone": "(804) 733-2650", "fax": "(804) 733-2650" }, { "county": "Prince William", "address": "7987 Ashton Ave., Suite 200, Manassas, VA 20109", "phone": "(703) 792-7500", "fax": "(703) 792-7500" }, { "county": "Pulaski", "address": "53 Commerce Street, Pulaski, VA 24301", "phone": "(540) 980-7995", "fax": "(540) 980-7995" }, { "county": "Radford City", "address": "928 W. Main St., Radford, VA 24141", "phone": "(540) 731-3663", "fax": "(540) 731-3663" }, { "county": "Rappahannock", "address": "354 Gay St., P.O. Box 87, Washington, VA 22747", "phone": "(540) 675-3313", "fax": "(540) 675-3313" }, { "county": "Richmond City", "address": "Marshall Plaza Building, 900 E. Marshall St., P.O. Box 10129, Richmond, VA 23240", "phone": "(804) 646-7000", "fax": "(804) 646-7000" }, { "county": "Richmond", "address": "5579 Richmond Road, P.O. Box 35, Warsaw, VA 22572", "phone": "(804) 333-4088", "fax": "(804) 333-4088" }, { "county": "Roanoke City", "address": "1510 Williamson Road, N.E., Roanoke, VA 24012", "phone": "(540) 853-2591", "fax": "(540) 853-2591" }, { "county": "Roanoke", "address": "220 E. Main St., P. O. Box 1127, Salem, VA 24153", "phone": "(540) 387-6087", "fax": "(540) 387-6087" }, { "county": "Rockbridge-Buena Vista-Lexington Area", "address": "20 E. Preston St., Lexington, VA 24450", "phone": "(540) 463-7143", "fax": "(540) 463-7143" }, { "county": "Russell", "address": "135 Highlands Drive , Suite B, Lebanon, VA 24266", "phone": "(276) 889-3031", "fax": "(276) 889-3031" }, { "county": "Scott", "address": "190 Beech Street, Suite 101, Gate City, VA 24251", "phone": "(276) 386-3631", "fax": "(276) 386-3631" }, { "county": "Shenandoah", "address": "Shenandoah County Government Center, 494 N. Main St., Suite 200, Woodstock, VA 22664", "phone": "(540) 459-6226", "fax": "(540) 459-6226" }, { "county": "Shenandoah Valley (Staunton-Augusta Office)", "address": "68 Dick Huff Lane, P.O. Box 7, Verona, VA 24482", "phone": "(540) 245-5800", "fax": "(540) 245-5800" }, { "county": "Shenandoah Valley (Waynesboro Office)", "address": "1200 Shenandoah Ave., Waynesboro, VA 22980", "phone": "(540) 942-6646", "fax": "(540) 942-6646" }, { "county": "Smyth", "address": "121 Bagley Circle, Suite 200, Marion, VA 24354", "phone": "(276) 783-8148", "fax": "(276) 783-8148" }, { "county": "Southampton", "address": "26022 Administration Center Drive, P.O. Box 550, Courtland, VA 23837", "phone": "(757) 653-3080", "fax": "(757) 653-3080" }, { "county": "Spotsylvania", "address": "9019 Old Battlefield Blvd - 2nd Fl., Spotsylvania, VA 22553, P.O. Box 249, Spotsylvania, VA 22553", "phone": "(540) 507-7898", "fax": "(540) 507-7898" }, { "county": "Stafford", "address": "Stafford County Government Center, 1300 Courthouse Road, P.O. Box 7, Stafford, VA 22555", "phone": "(540) 658-8720", "fax": "(540) 658-8720" }, { "county": "Suffolk", "address": "135 Hall Avenue, Suite B , P.O. Box 1818, Suffolk, VA 23434", "phone": "(757) 514-7450", "fax": "(757) 514-7450" }, { "county": "Surry", "address": "45 School Street, P.O. Box 263, Surry, VA 23883", "phone": "(757) 294-5240", "fax": "(757) 294-5240" }, { "county": "Sussex", "address": "20103 Princeton Road , Stony Creek, VA 23882", "phone": "(434) 246-1083", "fax": "(434) 246-1083" }, { "county": "Tazewell", "address": "253 Chamber Drive, P.O. Box 149, Tazewell, VA 24651", "phone": "(276) 988-8500", "fax": "(276) 988-8500" }, { "county": "Virginia Beach", "address": "3432 Virginia Beach Blvd., Virginia Beach, VA 23452", "phone": "(757) 385-3200", "fax": "(757) 385-3200" }, { "county": "Warren", "address": "465 W 15th Street, Suite 100, Front Royal, VA 22630", "phone": "(540) 635-3430", "fax": "(540) 635-3430" }, { "county": "Washington", "address": "15068 Lee Highway, Suite 100, Bristol, VA 24202", "phone": "(276) 645-5000", "fax": "(276) 645-5000" }, { "county": "Westmoreland", "address": "18849 Kings Highway, P.O. Box 302, Montross, VA 22520", "phone": "(804) 493-3562", "fax": "(804) 493-3562" }, { "county": "Williamsburg", "address": "401 Lafayette St., Williamsburg, VA 23185", "phone": "(757) 220-6161", "fax": "(757) 220-6161" }, { "county": "Winchester", "address": "24 Baker Street, Winchester, VA 22601", "phone": "(540) 662-3807", "fax": "(540) 662-3807" }, { "county": "Wise", "address": "10365 Pinnacle Drive, Wise, VA 24293", "phone": "(276) 328-8056", "fax": "(276) 328-8056" }, { "county": "Wythe", "address": "290 S. Sixth Street, Suite 200, Wytheville, VA 24382", "phone": "(276) -228-5493", "fax": "(276) -228-5493" }, { "county": "York/Poquoson", "address": "301 Goodwin Neck Road, Yorktown, VA 23692", "phone": "(757) 890-3787", "fax": "(757) 890-3787" }];
+		static mcos = [{"name": "Fee For Service", "NPI":"0000000000", "phone":"804-786-6145"},{ "name": "AETNA", "NPI": "0562425543", "phone": "1-800-279-1878" },{ "name": "Anthem", "NPI": "0562425972", "phone": "1-800-901-0020" },{ "name": "Molina", "NPI": "0575325995", "phone": "1-800-424-4518" },{ "name": "Optima", "NPI": "0562427754", "phone": "1-800-881-2166" },{ "name": "United Healthcare", "NPI": "0575326118", "phone": "1-844-752-9434" },{ "name": "Virginia Premier", "NPI": "0562425717", "phone": "1-800-727-7536" },{ "name": "CCC Plus Aetna", "NPI": "0247726596", "phone": "1-855-652-8249" },{ "name": "CCC Plus Anthem", "NPI": "0247726836", "phone": "1-855-323-4687" },{ "name": "CCC Plus Molina", "NPI": "0247725432", "phone": "1-800-424-4524" },{ "name": "CCC Plus Optima", "NPI": "0247719971", "phone": "1-866-546-7924" },{ "name": "CCC Plus United Healthcare", "NPI": "0247725788", "phone": "1-877-843-4366" },{ "name": "CCC Plus Virginia Premier", "NPI": "0247726240", "phone": "1-877-719-7358" }];
+		static aidcodes = [{ "code": "005", "name": "FAMIS Moms Pregnant Woman, Income > 133% FPL & <= 166% FPL.", "type": "full" }, { "code": "006", "name": "FAMIS Child under age 6, income > 150% poverty and <= 200% poverty.", "type": "full" }, { "code": "007", "name": "FAMIS Child 6-19 years old, income > 150% poverty and <=200% poverty.", "type": "full" }, { "code": "008", "name": "FAMIS Child under age 6, income > 133% poverty and <= 150% poverty.", "type": "full" }, { "code": "009", "name": "FAMIS Child 6-19 years old, income > 133% poverty and <= 150% poverty.", "type": "full" }, { "code": "010", "name": "FAMIS Deemed Newborn <1 year old", "type": "full" }, { "code": "014", "name": "FAMIS Deemed Newborn above 150% FPL", "type": "full" }, { "code": "011", "name": "Aged SSI Recipient Includes Dually Eligible QMB", "type": "qmb" }, { "code": "012", "name": "Aged AG Recipient Includes Dually Eligible QMB", "type": "qmb" }, { "code": "018", "name": "MN Aged; December 1973 Individual Not Also QMB", "type": "qmb" }, { "code": "020", "name": "Aged - Individual in Medical Institution or receiving Wavered Services with income <=300% SSI Hospice Recipient Not also QMB.", "type": "qmb" }, { "code": "021", "name": "Aged - Protected Covered individual Former Money Payment Recipient - August 1972 Former SSI/AG Recipient Protected Widow(er) Qualified Severely Disabled Individual Protected Adult Disabled Child", "type": "qmb" }, { "code": "022", "name": "Aged - Individuals in Medical Institution or receiving Wavered Services with Income <=300% SSI Hospice Recipient Includes Dually Eligible QMB", "type": "qmb" }, { "code": "023", "name": "Aged - QMB Only", "type": "qmb" }, { "code": "024", "name": "M/N-Aged SLMB Plus", "type": "qmb" }, { "code": "025", "name": "300% SSI Aged SLMB Plus", "type": "qmb" }, { "code": "028", "name": "MN Aged Individual - December 1973 Individual Dually Eligible QMB", "type": "qmb" }, { "code": "029", "name": "Aged, 80% FPL Group Includes Dually Eligible QMB", "type": "qmb" }, { "code": "031", "name": "Blind SSI Recipient - Includes Dually Eligible QMB.", "type": "qmb" }, { "code": "032", "name": "Blind AG Recipient - Includes Dually Eligible QMB.", "type": "qmb" }, { "code": "035", "name": "Presumptive Eligibility Adult (Pregnant)> Age range 19 but less than 57.", "type": "full" }, { "code": "038", "name": "MN Blind Individual December 1873 Individual Not also QMB", "type": "full" }, { "code": "039", "name": "Blind, 80% FPL Group - Includes Dually Eligible QMB.", "type": "full" }, { "code": "040", "name": "Blind - Individual in Medical Institution or WS with income <=300% SSI Hospice Recipient Not also QMB", "type": "full" }, { "code": "041", "name": "Blind - Protected Covered Individual Former Money Payment Recipient - August 1972 Former SSI/AG Recipient Protected Widow(er) Qualified Severely Disabled Individual Protected Adult Disabled Child", "type": "qmb" }, { "code": "042", "name": "Blind - Individual in Medical Institution or receiving Wavered Services with Income <=300% SSI Hospice Recipient in Medical Facility. Includes Dually Eligible QMB.", "type": "qmb" }, { "code": "043", "name": "Blind - QMB only.", "type": "qmb" }, { "code": "044", "name": "M/N - Blind/Disabled SLMB Plus", "type": "qmb" }, { "code": "045", "name": "300% SSI Blind/Disabled SLMB Plus", "type": "qmb" }, { "code": "048", "name": "MN Blind - Blind Individual December 1973 Individual Dually Eligible QMB", "type": "qmb" }, { "code": "049", "name": "Disabled, 80% FPL Group - Includes Dually Eligible QMB", "type": "qmb" }, { "code": "051", "name": "Disabled SSI Recipient - Includes Dually Eligible QMB", "type": "qmb" }, { "code": "052", "name": "Disabled AG Recipient - Includes Dually Eligible QMB", "type": "qmb" }, { "code": "053", "name": "Special Low Income Medicare Beneficiary (SLMB)", "type": "qmb" }, { "code": "054", "name": "Hospice Individual", "type": "full" }, { "code": "055", "name": "Qualified Disabled Working Individual (QDWI)", "type": "qmb" }, { "code": "056", "name": "Qualified Individual (QI1)", "type": "qmb" }, { "code": "057", "name": "Qualified Individual (QI2).", "type": "qmb" }, { "code": "058", "name": "MN Disabled Individual December 1973 Individual Not also QMB", "type": "qmb" }, { "code": "059", "name": "Medicaid Works, Disabled, 80% FPL Group - Includes Dually Eligible QMB.", "type": "qmb" }, { "code": "060", "name": "Disabled - Individual in Medical Institution or receiving Waiver Services with income <= 300% SSI Hospice recipient in Medical Facility Not also QMB", "type": "qmb" }, { "code": "061", "name": "Disabled - protected Covered Individual Former Money Payment Recipient - August 1972 Protected Widow(er) Qualified Severely Disabled Individual Protected Adult Disabled Child Includes Dually Eligible", "type": "qmb" }, { "code": "062", "name": "Disabled - Individual in Medical Institution or receiving Waiver Services with Income <=300% SSI Hospice Recipient Includes Dually Eligible QMB", "type": "qmb" }, { "code": "063", "name": "Disabled - QMB Only", "type": "qmb" }, { "code": "064", "name": "Presumptive Eligibility (PE) - Age <19", "type": "full" }, { "code": "065", "name": "Presumptive Eligibility (PE) Parent/Caretaker Relative", "type": "full" }, { "code": "066", "name": "Breast or Cervical Cancer Group", "type": "full" }, { "code": "067", "name": "PE Breast or Cervical Cancer Group", "type": "full" }, { "code": "068", "name": "MN Disabled Individual December 1973 Individual Dually Eligible QMB", "type": "qmb" }, { "code": "070", "name": "Former Foster Care - Age 19 < 26", "type": "full" }, { "code": "071", "name": "TANF or Deemed - TANF Recipient 4-month-extended Medicaid Recipient Includes Dually Eligible QMB", "type": "full" }, { "code": "072", "name": "Non-IVE Adoption-assistance Child Special Medical Needs Adoption-assistance Individual Includes Dually-eligible QMB", "type": "full" }, { "code": "073", "name": "TANF-UP or Deemed-TANF-UP Recipient", "type": "full" }, { "code": "074", "name": "IVE Foster Care or IVE Adoption-assistance Recipient - Includes Dually Eligible QMB", "type": "full" }, { "code": "075", "name": "Juvenile Justice Department Child - Includes Dually Eligible QMB", "type": "full" }, { "code": "076", "name": "Non-IVE Foster Care Child - Includes Dually Eligible QMB", "type": "full" }, { "code": "077", "name": "PE Former Foster Care", "type": "full" }, { "code": "078", "name": "Refugee Other or Refugee Medicaid Other", "type": "full" }, { "code": "079", "name": "Refugee Medicaid Unaccompanied Minor", "type": "full" }, { "code": "080", "name": "Plan First", "type": "limited" }, { "code": "081", "name": "Protected Covered Individual  Former Money payment Recipient - August 1972 Low-income Family with Child(ren) (LIFC) Individual 4 or/12-month extended Medicaid Recipient. Includes Dually-Eligible QMB.", "type": "full" }, { "code": "082", "name": "Individual under Age 21 in ICF or ICF-MR Includes Dually-Eligible QMB", "type": "full" }, { "code": "083", "name": "Former Money Payment Recipient - August 1972 Low-Income Family with Child(ren) Unemployed Parent (LIFC-UP) Individual 4-or/12-month-extended Medicaid Recipient", "type": "full" }, { "code": "084", "name": "PE Plan First", "type": "limited" }, { "code": "085", "name": "MN Individual Under Age 21 Juvenile Justice Department Child Includes Dually Eligible QMB", "type": "full" }, { "code": "086", "name": "MN Individual under Age 21 Non-IVE Foster-care Child or Non-IVE Adoption-assistance Child Special Needs Adoption Assistance Child Includes Dually-Eligible QMB", "type": "full" }, { "code": "087", "name": "Governors Access Plan (GAP)", "type": "full" }, { "code": "088", "name": "MN Child under Age 18 - Includes Dually-Eligible QMB", "type": "full" }, { "code": "089", "name": "MN Adult - Includes Dually-Eligible QMB", "type": "full" }, { "code": "090", "name": "Child Under Age 6 with income between 100% and 133% of FPL - Includes Dually-Eligible QMB", "type": "full" }, { "code": "091", "name": "Pregnant Woman Child under age 6 with income <=100% of poverty Includes Dually-Eligible QMB", "type": "full" }, { "code": "092", "name": "Child Age 6-19 with income <=100% poverty (insured or uninsured) Child Age 6-19 with income > 100% and <=133% (insured) Includes Dually-Eligible QMB", "type": "full" }, { "code": "093", "name": "Newborn Child Under Age 1 - Includes Dually Eligible QMB", "type": "full" }, { "code": "094", "name": "Child Age 6-19 Income > 100% poverty and <=133% poverty (uninsured)", "type": "full" }, { "code": "096", "name": "MN Adult/Child - Includes Dually-Eligible QMB", "type": "full" }, { "code": "097", "name": "MN Pregnant Woman - Includes Dually-Eligible QMB", "type": "full" }, { "code": "098", "name": "MN Individual Under age 21 in a Nursing Facility - Includes Dually-Eligible QMB", "type": "full" }, { "code": "099", "name": "MN Newborn Child under Age 1 - Includes Dually-Eligible QMB", "type": "full" }, { "code": "100", "name": "Caretaker Adult age 19 - 65, LE 100% FPL", "type": "full" }, { "code": "101", "name": "Caretaker Adult age 19 - 65, GT 100% FPL", "type": "full" }, { "code": "102", "name": "Adults age 19-65, LE 100% FPL", "type": "full" }, { "code": "103", "name": "Adults age 19-65, GT 100% FPL", "type": "full" }, { "code": "106", "name": "PE Adults age 19-65, LE 133% FPL", "type": "full" }, { "code": "107", "name": "Pregnant Women age 19-65", "type": "full" }, { "code": "108", "name": "DOC Adults age 19-65 (for Emergency Services Only use category 112)", "type": "cviu" }, { "code": "109", "name": "DOC FC/ABD (for Emergency Services Only use category 113)", "type": "cviu" }, { "code": "110", "name": "FAMIS Prenatal Coverage", "type": "full" }, { "code": "111", "name": "FAMIS Prenatal Coverage", "type": "full" }, { "code": "112", "name": "Emergency Services Aid Category for MAGI Adults Covered Groups", "type": "full" }, { "code": "113", "name": "Emergency Services Aid Category for all other Covered Groups", "type": "full" }, { "code": "214", "name": "TDO - General District Court", "type": "full" }, { "code": "215", "name": "TDO - Juvenile and Domestic Court", "type": "full" }, { "code": "216", "name": "TDO - Combined District Court", "type": "full" }, { "code": "401", "name": "Premium Payment - COBRA", "type": "limited" }, { "code": "402", "name": "Premium Payment - Conversion", "type": "limited" }, { "code": "404", "name": "Premium Payment - Individual", "type": "limited" }, { "code": "501", "name": "ACR", "type": "limited" }, { "code": "601", "name": "HIDP", "type": "limited" }, { "code": "801", "name": "ASSM Level 1", "type": "limited" }, { "code": "802", "name": "ASSM Level 2", "type": "limited" }, { "code": "803", "name": "ASSM ACR", "type": "limited" }, { "code": "919", "name": "(E-Medicaid) Emergency Medicaid", "type": "limited" }, { "code": "920", "name": "(E-Medicaid) Emergency Medicaid", "type": "limited" }, { "code": "999", "name": "Pandemic", "type": "limited" }];
+		static callreasons = [ 
+			{"code":"apply", "option":"New Application", "text":"apply for coverage", "disposition":"apply"}, 
+			{"code":"rmc", "option":"Report Change", "text":"report a change", "disposition":"rmc"}, 
+			{"code":"appstatus", "option":"Application Status", "text":"check the status of an application", "disposition":"appstatus_ldss"}, 
+			{"code":"casestatus", "option":"Coverage Status", "text":"check their coverage status", "disposition":"casestatus"}, 
+			{"code":"card", "option":"Request ID Card", "text":"request a new ID card", "disposition":"card_cc"},
+			{"code":"billing", "option":"Billing/Claim Issue", "text":"resolve a billing/claim issue", "disposition":"billing"}, 
+			{"code":"change", "option":"MCO Change", "text":"change their MCO", "disposition":"mco_nonfamis"}, 
+			{"code":"tpl", "option":"Remove TPL", "text":"remove a TPL", "disposition":"tpl"}, 
+			{"code":"deem", "option":"Newborn Deeming", "text":"deem a newborn", "disposition":"deem"}, 
+			{"code":"1095", "option":"Reissue 1095-B", "text":"request a new 1095-B", "disposition":"1095"}
+		];
+		static dispositions = [
+			{"code":"apply", "option":"New App - Complete", "text":"completed telephonic application and verbally signed. "},
+			{"code":"appstatus_ldss", "option":"App Status - LDSS", "text":"Provided application status and caseworker information."},
+			{"code":"appstatus_cpu", "option":"App Status - CPU", "text":"Provided application status and escalated to notify CPU."},
+			{"code":"appstatus_vcl", "option":"App Status - VCL", "text":"Provided application status and VCL information. Escalated to notify EW."},
+			{"code":"casestatus", "option":"Coverage Status - Correct", "text":"Provided coverage status"},
+			{"code":"casestatus", "option":"Coverage Status - Bridging", "text":"Bridging issue exists between VaCMS and MMIS. Escalated to supervisor and referred to CW."},
+			{"code":"billing_mco", "option":"Billing - MCO", "text":"Verified dates of service in MMIS and referred to MCO."},
+			{"code":"billing_recip", "option":"Billing - Recipient", "text":"Verified dates of service in MMIS and referred to Recipient Helpline."},
+			{"code":"mco_famis", "option":"MCO Change - FAMIS", "text":"Processed FAMIS MCO change in MMIS."},
+			{"code":"mco_nonfamis", "option":"MCO Change - MCO Helpline", "text":"Verified active coverage in MMIS. Referred to MCO Helpline."},
+			{"code":"tpl", "option":"TPL - Referred to CW", "text":"Verified TPL in MMIS and provided CW info to remove."},
+			{"code":"deem", "option":"Deeming - Completed", "text":"Completed newborn deeming webform."},
+			{"code":"1095", "option":"1095 - Reissued", "text":"Reissued 1095-B in MMIS."},
+			{"code":"card_cc", "option":"ID Card - Cardinal Care", "text":"Requested new ID card through MMIS."},
+			{"code":"card_mco", "option":"ID Card - MCO", "text":"Provided MCO contact info to request new card."},
+			{"code":"downscript", "option":"Other - Downscript", "text":"System issues prevent CSR from handling call. Read system issues script from Panviva."},
+			{"code":"noaudio", "option":"Other - No Audio", "text":"Unable to hear caller. Repeated greeting per Panviva and disconnected call."},
+			{"code":"dropped", "option":"Other - Dropped", "text":"Call dropped."},
+			{"code":"johnlee", "option":"Other - John Lee", "text":"Identified caller as John Lee and transferred to supervisor."}
+		];
+
+		static getLocality(cty){
+			if(this.isEmptyString(cty)) return null;
+
+			for(var c of this.localities)
+				if(c.county === cty) return c;
+
+			return null;
+		}
+
+		static getAidCode(code){
+			if(this.isEmptyString(code)) return null;
+
+			for(var c of this.aidcodes)
+				if(c.code === code) return c;
+
+			return null;
+		}
+
+		static getMCO(npi){
+			if(this.isEmptyString(npi)) return null;
+
+			for(var a of this.mcos)
+				if(a.NPI === npi) return a;
+
+			return null;
+		}
+
+		static getCallReason(code){
+			if(this.isEmptyString(code)) return null;
+
+			for(var a of this.callreasons)
+				if(a.code === code) return a;
+
+			return null;
+		}
+
+		static getDisposition(code){
+			if(this.isEmptyString(code)) return null;
+
+			for(var a of this.dispositions)
+				if(a.code === code) return a;
+
+			return null;
+		}
+
+		static isEmptyString(str){
+			return !(str && (typeof str === 'string' || str instanceof String) && str.trim().length > 0);
+		}
+		
+		static oxfordComma(arr){
+			if(!(arr && arr instanceof Array)) return '';
+			let retval = new String(), ix = 0, lastval = null;
+			for(var s of arr){
+				if(lastval) retval += (ix > 1 ? ', ' : '') + lastval;
+				ix++;
+				lastval = s;
+			}
+			if(lastval) retval += (ix > 1 ? (ix > 2 ? ', and ' : ' and ') : '') + lastval;
+			return retval;
 		}
 	}
 
